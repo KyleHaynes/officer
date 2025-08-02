@@ -80,6 +80,7 @@ cursor_begin <- function(x) {
 #'
 #' print(doc, target = tempfile(fileext = ".docx"))
 cursor_bookmark <- function(x, id) {
+
   xpath_ <- sprintf("//w:bookmarkStart[@w:name='%s']", id)
   bm_start <- xml_find_first(x$doc_obj$get(), xpath_)
 
@@ -97,21 +98,25 @@ cursor_bookmark <- function(x, id) {
     expr <- sprintf("/descendant::w:bookmarkStart[@w:id='%s']", bm_id)
     match_node <- xml_child(node, expr)
     !inherits(match_node, "xml_missing")
+    x = xml_children(node) %plike% paste0("bookmarkStart w:id=\"", bm_id, "\"")
+    y = xml_children(node) %plike% paste0("bookmarkEnd w:id=\"", bm_id, "\"/>")
+    any(x) && any(y)
   })
+
   if (!any(test_start)) {
     stop("bookmark ", shQuote(id), " has not been found in the document", call. = FALSE)
   }
 
-  test_end <- sapply(nodes_with_text, function(node) {
-    expr <- sprintf("/descendant::w:bookmarkEnd[@w:id='%s']", bm_id)
-    match_node <- xml_child(node, expr)
-    !inherits(match_node, "xml_missing")
-  })
+#   test_end <- sapply(nodes_with_text, function(node) {
+#     expr <- sprintf("/descendant::w:bookmarkEnd[@w:id='%s']", bm_id)
+#     match_node <- xml_child(node, expr)
+#     !inherits(match_node, "xml_missing")
+#   })
 
-  on_same_par <- test_start == test_end
-  if (!all(on_same_par)) {
-    stop("bookmark ", shQuote(id), " does not end in the same paragraph (or is on the whole paragraph)", call. = FALSE)
-  }
+#   on_same_par <- test_start == test_end
+#   if (!all(on_same_par)) {
+#     stop("bookmark ", shQuote(id), " does not end in the same paragraph (or is on the whole paragraph)", call. = FALSE)
+#   }
 
   x$officer_cursor$which <- which(test_start)[1]
 
