@@ -94,7 +94,7 @@ cursor_bookmark <- function(x, id) {
     x$doc_obj$get(),
     "/w:document/w:body/*|/w:ftr/*|/w:hdr/*"
   )
-  browser()
+
   test_start <- sapply(nodes_with_text, function(node) {
     expr <- sprintf("/descendant::w:bookmarkStart[@w:id='%s']", bm_id)
     match_node <- xml_child(node, expr)
